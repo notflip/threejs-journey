@@ -13,7 +13,7 @@ const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerH
 camera.position.z = 40
 
 /**
- * Rendered
+ * Renderer
  * 
  * Limit pixel ratio to 2, more can cause performance issues on high pixel-ratio devices
  */
@@ -31,61 +31,32 @@ window.addEventListener('resize', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
+// Texture
+const image = new Image()
+const texture = new THREE.Texture(image)
+
+image.onload = () => {
+    texture.needsUpdate = true
+}
+
+image.src = './door.jpg'
+
+// Material
+const material = new THREE.MeshBasicMaterial({map: texture})
+const geometry = new THREE.PlaneBufferGeometry(4,4,1,1)
+const mesh = new THREE.Mesh(geometry, material)
 
 // Helpers
 scene.add(new THREE.AxesHelper(10))
 const controls = new OrbitControls(camera, renderer.domElement)
 
-// Canvas
-const textureCanvasWidth = 512;
-const textureCanvasHeight = 512;
+scene.add(mesh)
 
-const textureCanvas = document.createElement('canvas');
-textureCanvas.width = textureCanvasWidth
-textureCanvas.height = textureCanvasHeight
-
-const context = textureCanvas.getContext('2d') as CanvasRenderingContext2D;
-context.font = '48px Helvetica';
-context.fillStyle = 'red';
-context.fillRect(0, 0, textureCanvasWidth, textureCanvasHeight)
-context.fillStyle = 'white';
-context.fillText('Hello World', textureCanvasWidth / 2, textureCanvasHeight / 2);
-
-const texture = new THREE.CanvasTexture(textureCanvas)
-
-const rightMaterial = new THREE.MeshBasicMaterial({ color: 'red' })
-
-const mesh = new THREE.Mesh(
-    new THREE.BoxGeometry(4, 24, 18, 1),
-    [
-        rightMaterial,
-        new THREE.MeshBasicMaterial({ map: texture }), // left side
-        new THREE.MeshBasicMaterial({ color: 'blue' }),
-        new THREE.MeshBasicMaterial({ color: 'green' }),
-        new THREE.MeshBasicMaterial({ color: 'purple' }),
-        new THREE.MeshBasicMaterial({ color: 'yellow' }),
-    ]);
-
-mesh.rotation.y = 0.5;
-
-const books = new THREE.Group()
-books.add(mesh)
-
-scene.add(books);
-
-// Debug
-const gui = new dat.GUI();
-
-gui.add(mesh.position, 'x', -3, 3, .01).name('X Position')
-gui.addColor({param: 0xff0000}, 'param').onChange(value => {
-    rightMaterial.color.set(value)
-})
-
+// Render
 function animate() {
     requestAnimationFrame(animate);
     controls.update();
     renderer.render(scene, camera);
-
 }
 
 animate()
