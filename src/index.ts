@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import * as dat from 'dat.gui';
+
 import './style.css'
 
 // Scene
@@ -20,6 +22,7 @@ const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true })
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
+// Resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight
     camera.updateProjectionMatrix()
@@ -49,10 +52,13 @@ context.fillStyle = 'white';
 context.fillText('Hello World', textureCanvasWidth / 2, textureCanvasHeight / 2);
 
 const texture = new THREE.CanvasTexture(textureCanvas)
+
+const rightMaterial = new THREE.MeshBasicMaterial({ color: 'red' })
+
 const mesh = new THREE.Mesh(
     new THREE.BoxGeometry(4, 24, 18, 1),
     [
-        new THREE.MeshBasicMaterial({ color: 'red' }), // right side
+        rightMaterial,
         new THREE.MeshBasicMaterial({ map: texture }), // left side
         new THREE.MeshBasicMaterial({ color: 'blue' }),
         new THREE.MeshBasicMaterial({ color: 'green' }),
@@ -67,10 +73,19 @@ books.add(mesh)
 
 scene.add(books);
 
+// Debug
+const gui = new dat.GUI();
+
+gui.add(mesh.position, 'x', -3, 3, .01).name('X Position')
+gui.addColor({param: 0xff0000}, 'param').onChange(value => {
+    rightMaterial.color.set(value)
+})
+
 function animate() {
     requestAnimationFrame(animate);
     controls.update();
     renderer.render(scene, camera);
 
 }
+
 animate()
