@@ -5,5 +5,5 @@
     },
     "include": [
         "**/*.ts"
-    ]
+, "../exercises/start-cube.ts"    ]
 }
