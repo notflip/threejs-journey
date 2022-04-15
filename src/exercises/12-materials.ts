@@ -41,6 +41,9 @@ const ambientOcclusionTexture = textureLoader.load('./ambientOcclusion.jpg')
 const gradientTexture = textureLoader.load('./gradients/3.jpg')
 const matcapTexture = textureLoader.load('./matcaps/8.png')
 const displacementTexture = textureLoader.load('./height.jpg')
+const metalnessTexture = textureLoader.load('./metalness.jpg')
+const roughnessTexture = textureLoader.load('./roughness.jpg')
+const normalTexture = textureLoader.load('./normal.jpg')
 
 // const material = new THREE.MeshBasicMaterial()
 // material.map = colorTexture
@@ -67,23 +70,44 @@ const displacementTexture = textureLoader.load('./height.jpg')
 // material.shininess = 1000
 // material.specular = new THREE.Color(0x00ff00)
 
+// Same as the MeshStandardMaterial but with support for clearcoat materials, very specific
+// const material = new THREE.MeshPhysicalMaterial
+
 // Better algoritm then Lambert or Phong
+// const material = new THREE.MeshStandardMaterial()
+// material.map = colorTexture
+// material.aoMap = ambientOcclusionTexture
+// material.aoMapIntensity = 1
+// // Don't combine metalness/roughness value and maps, or set them to default values (metalness 0, roughness 1)
+// // material.metalness = .45
+// // material.roughness = 0.1
+// material.metalnessMap = metalnessTexture
+// material.roughnessMap = roughnessTexture
+// material.normalMap = normalTexture
+// material.normalScale.set(1,1)
+// material.displacementMap = displacementTexture
+// material.displacementScale = .05
+
+/**
+ * Environment Maps Example
+ */
+const cubeTextureLoader = new THREE.CubeTextureLoader()
+
+// the order is important, positive-x, negative-x, positive-y, negative-y, positive-z, negative-z
+const environmentMapTexture = cubeTextureLoader.load([
+    './environment/px.jpg',
+    './environment/nx.jpg',
+    './environment/py.jpg',
+    './environment/ny.jpg',
+    './environment/pz.jpg',
+    './environment/nz.jpg'
+])
+
 const material = new THREE.MeshStandardMaterial()
-material.map = colorTexture
-material.aoMap = ambientOcclusionTexture
-material.aoMapIntensity = 1
-material.metalness = .45
-material.roughness = 0.1
-material.displacementMap = displacementTexture
-material.displacementScale = .05
+material.metalness = 0.7
+material.roughness = 0.2
+material.envMap = environmentMapTexture
 
-const sphereMesh = new THREE.Mesh(new THREE.SphereBufferGeometry(.5, 16, 16), material)
-
-// Duplicate the UV coords to a new uv channel to use with the aoMap
-sphereMesh.geometry.setAttribute(
-    'uv2',
-    new THREE.BufferAttribute(sphereMesh.geometry.attributes.uv.array, 2)
-)
 
 const planeMesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(1, 1, 100, 100), material)
 
@@ -92,7 +116,15 @@ planeMesh.geometry.setAttribute(
     'uv2',
     new THREE.BufferAttribute(planeMesh.geometry.attributes.uv.array, 2)
 )
-planeMesh.position.x = -1.5
+
+const sphereMesh = new THREE.Mesh(new THREE.SphereBufferGeometry(.5, 16, 16), material)
+
+// Duplicate the UV coords to a new uv channel to use with the aoMap
+sphereMesh.geometry.setAttribute(
+    'uv2',
+    new THREE.BufferAttribute(sphereMesh.geometry.attributes.uv.array, 2)
+)
+sphereMesh.position.x = -1.5
 
 const torusMesh = new THREE.Mesh(new THREE.TorusBufferGeometry(.4, .2, 16, 16), material)
 
@@ -122,7 +154,6 @@ scene.add(pointLight)
 /**
  * Debug
  */
-// Debug
 const gui = new dat.GUI();
 gui.add(material, 'metalness', 0, 1, .001)
 gui.add(material, 'roughness', 0, 1, .001)
