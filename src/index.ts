@@ -5,19 +5,11 @@ import * as dat from 'dat.gui';
 
 const gui = new dat.GUI();
 
-/**
- * Camera
- */
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
-camera.position.y = 4
-camera.position.x = -8
-camera.position.z = 10
-
 const scene = new THREE.Scene()
 scene.add(new THREE.AxesHelper(10))
 
 // Fog
-const fog = new THREE.Fog('#262837', 1, 20)
+const fog = new THREE.Fog('#262837', 1, 10)
 scene.fog = fog
 
 // Textures
@@ -186,20 +178,17 @@ const ambientLight = new THREE.AmbientLight('#b9d5ff', .12)
 gui.add(ambientLight, 'intensity').min(0).max(1).step(.001)
 scene.add(ambientLight)
 
-const moonLight = new THREE.DirectionalLight('#b9d5ff', .12)
-const moonLightHelper = new THREE.DirectionalLightHelper(moonLight)
-moonLight.position.set(2, 2, 2)
-
-gui.add(moonLight, 'intensity').min(0).max(1).step(.001)
-gui.add(moonLight.position, 'x').min(-10).max(10).step(.001)
-gui.add(moonLight.position, 'y').min(-10).max(10).step(.001)
-gui.add(moonLight.position, 'z').min(-10).max(10).step(.001)
-
-scene.add(moonLight, moonLightHelper)
-
 const doorLight = new THREE.PointLight('#ff7d46', 2, 7)
 doorLight.position.set(0, 2.2, 2.7)
 house.add(doorLight)
+
+/**
+ * Camera
+ */
+ const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000)
+ camera.position.y = 1
+ camera.position.x = 0
+ camera.position.z = 11
 
 /**
  * Renderer
@@ -217,10 +206,6 @@ house.add(doorLight)
   */
  renderer.shadowMap.enabled = true
  renderer.shadowMap.type = THREE.PCFSoftShadowMap
- 
- moonLight.castShadow = true
- moonLight.shadow.mapSize = new THREE.Vector2(128,128)
- moonLight.shadow.camera.far = 15
  
  // For each shadow, think how far it has to be, think about performance
  doorLight.castShadow = true
@@ -263,7 +248,7 @@ house.add(doorLight)
      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  })
  
- const controls = new OrbitControls(camera, renderer.domElement)
+//  const controls = new OrbitControls(camera, renderer.domElement)
 
 /**
  * Tick
@@ -291,7 +276,12 @@ const tick = () => {
     ghost3.position.z = Math.sin(ghost3Angle) * (7 + Math.sin(elapsed * .5))
     ghost3.position.y = 1 + Math.sin(elapsed * 3)
 
-    controls.update();
+    // Move the camera
+    camera.position.x = Math.sin(elapsed * .1) * 10
+    camera.position.z = Math.cos(elapsed * .1) * 10
+    camera.rotation.y = elapsed * .1
+
+    // controls.update();
     renderer.render(scene, camera);
     window.requestAnimationFrame(tick);
 }
